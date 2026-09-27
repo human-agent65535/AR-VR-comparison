@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-pages/
+.env
+.env.*
+!.env.example
+*.log
+*.zip
+*.tgz
+.DS_Store

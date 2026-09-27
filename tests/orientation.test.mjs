@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {Quaternion,Euler,Vector3} from 'three';
+import {deviceQuaternion,recenterOffset,relativeOrientation} from '../src/orientation.js';
+const near=(a,b,t=1e-8)=>assert.ok(Math.abs(a-b)<t,`${a} != ${b}`);
+test('upright portrait maps forward, not up or down',()=>{const q=deviceQuaternion(0,90,0,0);const v=new Vector3(0,0,-1).applyQuaternion(q);near(v.x,0);near(v.y,0);near(v.z,-1)});
+test('recenter preserves current view for arbitrary device poses and screen rotations',()=>{for(const angle of [0,90,-90,180]){const raw=deviceQuaternion(127,42,-21,angle),current=new Quaternion().setFromEuler(new Euler(-.13,.8,0,'YXZ'));const offset=recenterOffset(raw,current);near(relativeOrientation(raw,offset).angleTo(current),0,1e-7)}});
+test('phone yaw rotates the view by the same amount after calibration',()=>{let raw=deviceQuaternion(20,90,0),offset=recenterOffset(raw);let q=relativeOrientation(deviceQuaternion(50,90,0),offset);near(q.angleTo(new Quaternion()),Math.PI/6,1e-7)});
+test('landscape correction remains a normalized quaternion',()=>{for(let a=-180;a<=180;a+=30){const q=deviceQuaternion(a,60,25,90);near(q.length(),1)}});
+test('orientation wraps at 360 degrees without a jump',()=>{const a=deviceQuaternion(359.9,90,0),b=deviceQuaternion(.1,90,0);near(a.angleTo(b),.2*Math.PI/180,1e-7)});

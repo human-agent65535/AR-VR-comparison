@@ -1,0 +1,17 @@
+Earth imagery: NASA Earth Observatory, Blue Marble: Next Generation,
+September 2004 composite with shaded topography; 2048 x 1024 delivery.
+Credit: NASA Earth Observatory.
+Source: https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography/
+Image: https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography/september/world.topo.200409.3x5400x2700.jpg
+NASA media guidelines: https://www.nasa.gov/nasa-brand-center/images-and-media/
+
+Fallback Earth Explorer coastline dataset
+
+Natural Earth, 1:110m land (ne_110m_land.geojson), public domain.
+Downloaded 2026-09-27 from the Natural Earth vector data repository:
+https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_110m_land.geojson
+Terms: https://www.naturalearthdata.com/about/terms-of-use/
+
+Fallback terrain coloration and surface relief are illustrative.
+City labels, lighting and the interface are local demonstration elements. The local application
+is not Google Earth and does not use Google's imagery, SDK, or branding.
