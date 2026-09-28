@@ -17,7 +17,7 @@ This simulator is **educational only**. Device boundaries, optical effects and s
 
 A window can feel smaller in a browser overview and larger inside a Quest because the canvas framing and the host headset's visible field differ. The target angles do not grow with that change in feel.
 
-The oval is a simplified **fixed-gaze monocular field**, including peripheral vision, not a sweep obtained by turning the eye. **Focused preview** uses a shared 112° × 100° crop for readability; it does not model physiological central vision. Estimated sunglasses and fabric surrounds stay independent of the display FOV and are not shrunk to fit the Quest host view.
+The web preview uses one full **fixed-gaze monocular field**, including peripheral vision, not a sweep obtained by turning the eye. A thin blue-grey outline in the Quest preview marks this reference separately from the device display FOV. Estimated sunglasses and fabric surrounds stay independent of the display FOV and are not shrunk to fit the Quest host view.
 
 ## Run locally
 

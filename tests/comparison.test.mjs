@@ -17,12 +17,16 @@ test('wide layouts show all three; smaller layouts offer exactly the selected tw
     assert.equal(views[1].y>0,width<660);
   }
 });
-test('wearing framing enlarges all devices equally without replacing anatomical human limits',()=>{
-  const close=projection(620,560,'right','wearing'),full=projection(620,560,'right','peripheral');
+test('the shared overview contains the full fixed-gaze field at equal device scale',()=>{
   assert.equal(RENDER_ASSUMPTIONS.humanField.includesEyeRotations,false);
-  assert.deepEqual(close.human,full.human);assert.deepEqual(close.center,[0,0]);assert.ok(close.scale>full.scale);
-  const quest=projectedBounds(getProfile('quest3'),620,560),meta=projectedBounds(getProfile('meta'),620,560);
-  assert.ok(quest.width/620>.88&&quest.height/560>.85);assert.ok(quest.width<=620&&quest.height<=560,'the tighter crop still contains the Quest comparison envelope');assert.ok(Math.abs(quest.width/meta.width-110/70)<1e-10);
+  for(const [width,height] of [[620,560],[390,620],[1130,340]])for(const eye of ['left','right']){
+    const p=projection(width,height,eye),[x,y]=p.origin,s=p.scale;
+    assert.ok(x-p.human.left*s>0&&x+p.human.right*s<width,'both lateral limits of the human reference remain in view');
+    assert.ok(y-p.human.up*s>0&&y+p.human.down*s<height,'upper and lower peripheral limits remain in view');
+    const quest=projectedBounds(getProfile('quest3'),width,height,eye),meta=projectedBounds(getProfile('meta'),width,height,eye);
+    assert.ok(quest.x>=0&&quest.y>=0&&quest.x+quest.width<=width&&quest.y+quest.height<=height);
+    assert.ok(Math.abs(quest.width/meta.width-110/70)<1e-10,'device fields retain a shared angular scale');
+  }
 });
 test('every retained chart device can be drawn with disclosed estimates; R1 is absent',()=>{
   assert.equal(DEVICES.some(d=>d.id==='r1'),false);assert.equal(DEVICES.length,7);

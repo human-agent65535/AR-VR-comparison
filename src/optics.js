@@ -20,12 +20,12 @@ export function humanField(eye='right') {
   const f=RENDER_ASSUMPTIONS.humanField;
   return {left:eye==='right'?f.nasal:f.temporal,right:eye==='right'?f.temporal:f.nasal,up:f.up,down:f.down};
 }
-export function projection(width,height,eye='right',framing='wearing') {
-  const human=humanField(eye),field=framing==='peripheral'?RENDER_ASSUMPTIONS.observerCameraFov:RENDER_ASSUMPTIONS.wearingCameraFov;
+export function projection(width,height,eye='right') {
+  const human=humanField(eye),field=RENDER_ASSUMPTIONS.observerCameraFov;
   const scale=Math.min(width/field.h,height/field.v);
-  const center=framing==='peripheral'?[(human.right-human.left)/2,(human.up-human.down)/2]:[0,0];
+  const center=[(human.right-human.left)/2,(human.up-human.down)/2];
   return {scale,focal:scale,center,span:[width/(2*scale),height/(2*scale)],
-    origin:[width/2-center[0]*scale,height/2+center[1]*scale],human,field,framing};
+    origin:[width/2-center[0]*scale,height/2+center[1]*scale],human,field};
 }
 // Equidistant spherical projection preserves the central 30-degree circular test target.
 export function angularToRay(x,y) {
@@ -39,8 +39,8 @@ export function rayToAngular(x,y,z) {
 export function inDisplayRay(ray,profile) {
   const [x,y,z]=ray,b=profile.frustum||[-profile.tangent[0],profile.tangent[0],-profile.tangent[1],profile.tangent[1]];return z<0&&x/-z>=b[0]-1e-10&&x/-z<=b[1]+1e-10&&y/-z>=b[2]-1e-10&&y/-z<=b[3]+1e-10;
 }
-export function projectedBounds(profile,width,height,eye='right',framing='wearing') {
-  const p=projection(width,height,eye,framing);
+export function projectedBounds(profile,width,height,eye='right') {
+  const p=projection(width,height,eye);
   const b=profile.frustum||[-profile.tangent[0],profile.tangent[0],-profile.tangent[1],profile.tangent[1]];
   return {x:p.origin[0]+p.scale*Math.atan(b[0])/rad,y:p.origin[1]-p.scale*Math.atan(b[3])/rad,width:p.scale*profile.h,height:p.scale*profile.v,scale:p.scale};
 }

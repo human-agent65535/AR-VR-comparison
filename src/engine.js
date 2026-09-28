@@ -52,7 +52,7 @@ worldP=(modelMatrix*p).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(worldP,1
     host.classList.toggle('stacked',state.mode==='split'&&host.clientWidth<660);
     const split=state.mode==='split',columns=split?(host.clientWidth>=THREE_VIEW_MIN_WIDTH?3:host.clientWidth<660?1:2):1;
     const cellWidth=Math.floor((host.clientWidth-columns+1)/columns);
-    const field=state.framing==='peripheral'?RENDER_ASSUMPTIONS.observerCameraFov:RENDER_ASSUMPTIONS.wearingCameraFov;
+    const field=RENDER_ASSUMPTIONS.observerCameraFov;
     host.style.setProperty('--view-height',Math.round((cellWidth*field.v/field.h+80)*(split&&columns===1?2:1))+'px');
     w=host.clientWidth;h=host.clientHeight;if(w<1||h<1)return;
     const coarse=matchMedia('(pointer:coarse)').matches;
@@ -67,7 +67,7 @@ worldP=(modelMatrix*p).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(worldP,1
     // Device captions live outside the optical image, so a large Quest field does
     // not collide with its title or force additional black optical margins.
     views=views.map(v=>({...v,cellY:v.y,cellH:v.h,y:v.y+64,h:Math.max(1,v.h-80)}));
-    onViewChange(views.map(v=>({...v,profile:getProfile(v.type==='room'?'meta':v.type,state.assumption,undefined,state.eye),projection:projection(v.w,v.h,state.eye,state.framing),bounds:projectedBounds(getProfile(v.type==='room'?'meta':v.type,state.assumption,undefined,state.eye),v.w,v.h,state.eye,state.framing)})));
+    onViewChange(views.map(v=>({...v,profile:getProfile(v.type==='room'?'meta':v.type,state.assumption,undefined,state.eye),projection:projection(v.w,v.h,state.eye),bounds:projectedBounds(getProfile(v.type==='room'?'meta':v.type,state.assumption,undefined,state.eye),v.w,v.h,state.eye)})));
   }
   function update() {
     if(room.setTime(state.timeOfDay))roomDirty=true;
@@ -125,10 +125,10 @@ worldP=(modelMatrix*p).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(worldP,1
     if(contentDirty){capture(contentCapture,content.scene,0);captures.content++;contentDirty=false;}
     renderer.setRenderTarget(null);renderer.setScissorTest(false);renderer.setClearColor('#202722',1);renderer.clear();
     u.viewQuaternion.value.set(camera.quaternion.x,camera.quaternion.y,camera.quaternion.z,camera.quaternion.w);
-    for(const view of views){const profile=getProfile(view.type==='room'?'meta':view.type,state.assumption,undefined,state.eye),p=projection(view.w,view.h,state.eye,state.framing);u.observerField.value.set(p.field.h,p.field.v);u.device.value={room:0,meta:1,aura:2,quest3:3}[view.type];u.angularSpan.value.fromArray(p.span);u.angularCenter.value.fromArray(p.center);u.humanBounds.value.set(p.human.left,p.human.right,p.human.up,p.human.down);u.displayFrustum.value.fromArray(profile.frustum);renderer.setViewport(view.x,h-view.y-view.h,view.w,view.h);renderer.setScissor(view.x,h-view.y-view.h,view.w,view.h);renderer.setScissorTest(true);renderer.render(post,postCamera);}
+    for(const view of views){const profile=getProfile(view.type==='room'?'meta':view.type,state.assumption,undefined,state.eye),p=projection(view.w,view.h,state.eye);u.observerField.value.set(p.field.h,p.field.v);u.device.value={room:0,meta:1,aura:2,quest3:3}[view.type];u.angularSpan.value.fromArray(p.span);u.angularCenter.value.fromArray(p.center);u.humanBounds.value.set(p.human.left,p.human.right,p.human.up,p.human.down);u.displayFrustum.value.fromArray(profile.frustum);renderer.setViewport(view.x,h-view.y-view.h,view.w,view.h);renderer.setScissor(view.x,h-view.y-view.h,view.w,view.h);renderer.setScissorTest(true);renderer.render(post,postCamera);}
     renderer.setScissorTest(false);updateReadout(now);
     if(++frames===3){document.getElementById('loading').hidden=true;document.body.dataset.ready='true';}
   }
-  function getSnapshot(){return {framing:state.framing,observerCameraFov:state.framing==='peripheral'?RENDER_ASSUMPTIONS.observerCameraFov:RENDER_ASSUMPTIONS.wearingCameraFov,position:camera.position.toArray(),quaternion:camera.quaternion.toArray(),virtualContentPose:RENDER_ASSUMPTIONS.virtualContentPose,content:content.getSnapshot(),room:room.getSnapshot(),captures:{...captures},captureProjection:{verticalFov:90,aspect:1,cubeSize,contentCubeSize},physicalGeometryUsed:false,wearingApproximation:state.wearEdges?RENDER_ASSUMPTIONS.wearing:null,showVirtual:state.showVirtual,perceptualAssumptions:RENDER_ASSUMPTIONS.viewExperience,canvas:{width:w,height:h,drawingWidth:renderer.domElement.width,drawingHeight:renderer.domElement.height,dpr:renderer.getPixelRatio()},views:views.map(v=>({...v,display:getProfile(v.type==='room'?'meta':v.type,state.assumption),projection:projection(v.w,v.h,state.eye,state.framing)}))};}
+  function getSnapshot(){return {observerCameraFov:RENDER_ASSUMPTIONS.observerCameraFov,position:camera.position.toArray(),quaternion:camera.quaternion.toArray(),virtualContentPose:RENDER_ASSUMPTIONS.virtualContentPose,content:content.getSnapshot(),room:room.getSnapshot(),captures:{...captures},captureProjection:{verticalFov:90,aspect:1,cubeSize,contentCubeSize},physicalGeometryUsed:false,wearingApproximation:state.wearEdges?RENDER_ASSUMPTIONS.wearing:null,showVirtual:state.showVirtual,perceptualAssumptions:RENDER_ASSUMPTIONS.viewExperience,canvas:{width:w,height:h,drawingWidth:renderer.domElement.width,drawingHeight:renderer.domElement.height,dpr:renderer.getPixelRatio()},views:views.map(v=>({...v,display:getProfile(v.type==='room'?'meta':v.type,state.assumption),projection:projection(v.w,v.h,state.eye)}))};}
   update();render();return {update,resize,recenter,toggleSensor,moveTo,anchor,getSnapshot};
 }

@@ -10,7 +10,7 @@ import {COMPONENTS} from './headsets.js';
 import {RENDER_ASSUMPTIONS,SOURCES} from './device-data.js';
 const $=selector=>document.querySelector(selector),$$=selector=>[...document.querySelectorAll(selector)];
 const params=new URLSearchParams(location.search),deep=location.pathname.endsWith('room.html');
-const state={mode:['meta','aura','quest3','split','room'].includes(params.get('mode'))?params.get('mode'):deep?'meta':'split',content:['cinema','work','earth','fov','vision','black'].includes(params.get('content'))?params.get('content'):'earth',comparePair:'quest3-meta',framing:'wearing',earthPlace:'newyork',earthZoom:RENDER_ASSUMPTIONS.earthApp.initialZoom,earthLayout:'compact',showVirtual:true,wearEdges:true,lensTint:true,allowUnknownAxes:true,pass:true,guides:true,eyeFilter:true,eye:'right',dim:readTint(params),timeOfDay:readRoomTime(params),assumption:'diagonal',quality:'auto',modelRx:false,rxMode:'off',rxLink:true,rxStrength:4,rx:{left:{sphere:3,cylinder:1,axis:90},right:{sphere:3,cylinder:1,axis:90}}};
+const state={mode:['meta','aura','quest3','split','room'].includes(params.get('mode'))?params.get('mode'):deep?'meta':'split',content:['cinema','work','earth','fov','vision','black'].includes(params.get('content'))?params.get('content'):'earth',comparePair:'quest3-meta',earthPlace:'newyork',earthZoom:RENDER_ASSUMPTIONS.earthApp.initialZoom,earthLayout:'compact',showVirtual:true,wearEdges:true,lensTint:true,allowUnknownAxes:true,pass:true,guides:true,eyeFilter:true,eye:'right',dim:readTint(params),timeOfDay:readRoomTime(params),assumption:'diagonal',quality:'auto',modelRx:false,rxMode:'off',rxLink:true,rxStrength:4,rx:{left:{sphere:3,cylinder:1,axis:90},right:{sphere:3,cylinder:1,axis:90}}};
 document.body.classList.toggle('deep',deep);document.body.dataset.mode=state.mode;
 createControlsLayout(state.mode);
 if(deep)$('h1').textContent='从人眼出发，比较三款设备的视野。';
@@ -28,13 +28,22 @@ function renderLabels(views) {
     const room=v.type==='room',meta=v.type==='meta',quest=v.type==='quest3',p=v.profile,b=v.bounds,s=v.projection.scale;
     const cx=v.x+v.projection.origin[0],cy=v.y+v.projection.origin[1];
     names+=`<div class="view-name ${v.type}" style="left:${v.x+17}px;top:${v.cellY+18}px"><i class="dot"></i><strong>${room?'裸眼 · 同一人眼窗口':meta?'VR Glasses':quest?'Meta Quest 3':'XREAL AURA'}</strong><span class="tag">${room?'ROOM':(meta||quest)?pass?'视频透视示意':'VR 黑底':`光学透视 · ${state.lensTint?'调光 '+state.dim+' / 5':'调光关闭'}`}</span></div>`;
-    names+=`<div class="eye-caption" style="left:${v.x+17}px;top:${v.cellY+42}px">${state.eye==='right'?'右眼':'左眼'} · ${state.framing==='peripheral'?'固定注视全景':'聚焦预览'} · ${state.eyeFilter?'固定注视参考':'视野参考关闭'}</div>`;
+    names+=`<div class="eye-caption" style="left:${v.x+17}px;top:${v.cellY+42}px">${state.eye==='right'?'右眼':'左眼'} · ${state.eyeFilter?'固定注视视野参考':'视野参考关闭'}</div>`;
+    if(quest&&state.eyeFilter){
+      // Use the same four quadrant ellipses as humanVisibility, at one CSS
+      // pixel regardless of pane size or renderer resolution. This reference
+      // remains independent of the device display guides and scene lighting.
+      const [ox,oy]=v.projection.origin,h=v.projection.human;
+      const left=h.left*s,right=h.right*s,up=h.up*s,down=h.down*s;
+      const outline=`M${ox} ${oy-up}A${right} ${up} 0 0 1 ${ox+right} ${oy}A${right} ${down} 0 0 1 ${ox} ${oy+down}A${left} ${down} 0 0 1 ${ox-left} ${oy}A${left} ${up} 0 0 1 ${ox} ${oy-up}Z`;
+      labels+=`<svg class="field-reference-outline" aria-hidden="true" style="left:${v.x}px;top:${v.y}px;width:${v.w}px;height:${v.h}px" viewBox="0 0 ${v.w} ${v.h}"><path d="${outline}"/></svg>`;
+    }
     if(!room&&state.guides) {
       const label=(text,x,y)=>`<div class="layer-label" style="left:${Math.max(v.x+12,Math.min(x,v.x+v.w-135))}px;top:${y}px">${text}</div>`;
       labels+=`<div class="display-measure ${v.type}" data-fov-h="${p.h}" data-fov-v="${p.v}" data-display-width="${b.width}" data-display-height="${b.height}" style="left:${v.x+b.x}px;top:${v.y+b.y-24}px;width:${b.width}px">${p.h.toFixed(meta||quest?0:1)}° H${!meta&&!quest?' ≈':''}</div>`;
       labels+=`<div class="vertical-measure ${v.type}" style="left:${v.x+b.x+b.width+9}px;top:${v.y+b.y}px;height:${b.height}px"><span>${p.v.toFixed(meta||quest?0:1)}° V</span></div>`;
       labels+=label(meta||quest?'显示窗 · 视频透视 / VR':'显示范围 · 叠加在现实上',cx-40*s,cy+Math.min(42,p.v/2+9)*s);
-      if(state.wearEdges&&state.framing==='peripheral')labels+=label(quest?'封闭面罩 · 不直视现实':meta?'边缘开口 · 直接看现实':'外层变色片 · 光学透视',cx+4*s,cy+64*s);
+      if(state.wearEdges)labels+=label(quest?'封闭面罩 · 不直视现实':meta?'边缘开口 · 直接看现实':'外层变色片 · 光学透视',cx+4*s,cy+64*s);
 
     }
   }
@@ -75,7 +84,6 @@ try {
 $$('button[data-mode]').forEach(b=>b.addEventListener('click',()=>{state.mode=b.dataset.mode;const u=new URL(location.href);u.searchParams.set('mode',state.mode);history.replaceState({},'',u);updateUI();}));
 $$('[data-content]').forEach(b=>b.addEventListener('click',()=>{state.content=b.dataset.content;experience?.anchor();experience?.recenter(true);updateUI();}));
 $$('[data-compare-pair]').forEach(b=>b.addEventListener('click',()=>{state.comparePair=b.dataset.comparePair;updateUI();}));
-$('#framing').addEventListener('change',e=>{state.framing=e.target.value;updateUI();});
 $$('[data-earth-place]').forEach(b=>b.addEventListener('click',()=>{state.earthPlace=b.dataset.earthPlace;updateUI();}));
 $('#earth-layout').addEventListener('change',e=>{state.earthLayout=e.target.value;updateUI();});
 $('#earth-zoom').addEventListener('input',e=>{state.earthZoom=+e.target.value;$('#earth-zoom-value').textContent=state.earthZoom.toFixed(2)+'×';experience?.update();});

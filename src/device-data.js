@@ -76,7 +76,6 @@ export const physicalGeometry={
 };
 export const RENDER_ASSUMPTIONS={
  observerCameraFov:{h:176,v:153,projection:'equidistant-angular',status:'assumed'},
- wearingCameraFov:{h:112,v:100,projection:'equidistant-angular',status:'assumed',note:'聚焦预览采用 112° × 100° 的统一屏幕裁切，方便查看显示内容；不是生理中央视觉或眼球扫视范围。所有设备同尺度放大，单眼固定注视的完整周边参考可切换。'},
  headsetBrowserPreview:{minH:120,minV:108,projection:'rectilinear',status:'assumed',note:'头显页的普通屏幕采用统一广角参考，相机随画布宽高比扩展其中一轴，不随设备目标缩放；不用于原生 WebXR 投影。'},
  humanField:{nasal:60,temporal:100,up:60,down:75,edge:[.995,1.005],gaze:'steady fixation',includesEyeRotations:false,status:'assumed',source:'https://www.ncbi.nlm.nih.gov/books/NBK220/?report=printable',note:'单眼保持固定注视时的周边视野参考，包含余光，没有叠加转动眼球后的扫视范围。文献角范围的简化椭圆；不是个人实测轮廓或注意力范围。'},
  virtualContentPose:{distance:3,cinemaWidth:2.6,cinemaHeight:1.463,unit:'scene-m',status:'assumed'},

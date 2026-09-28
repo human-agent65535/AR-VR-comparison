@@ -318,4 +318,7 @@ footer>a{font-size:11px;margin:0}
   #experience:fullscreen .earth-controls{display:none}
 }
 
-.control-panel .framing-note{margin:8px 0 12px;font-size:11px;line-height:1.65;color:var(--muted,#6e7c68)}
+.control-panel .field-reference-note{margin:8px 0 12px;font-size:11px;line-height:1.65;color:var(--muted,#6e7c68)}
+
+.field-reference-outline{position:absolute;pointer-events:none}
+.field-reference-outline path{fill:none;stroke:#88a5b2;stroke-opacity:.8;stroke-width:1;vector-effect:non-scaling-stroke}
