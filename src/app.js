@@ -28,7 +28,7 @@ function renderLabels(views) {
     const room=v.type==='room',meta=v.type==='meta',quest=v.type==='quest3',p=v.profile,b=v.bounds,s=v.projection.scale;
     const cx=v.x+v.projection.origin[0],cy=v.y+v.projection.origin[1];
     names+=`<div class="view-name ${v.type}" style="left:${v.x+17}px;top:${v.cellY+18}px"><i class="dot"></i><strong>${room?'裸眼 · 同一人眼窗口':meta?'VR Glasses':quest?'Meta Quest 3':'XREAL AURA'}</strong><span class="tag">${room?'ROOM':(meta||quest)?pass?'视频透视示意':'VR 黑底':`光学透视 · ${state.lensTint?'调光 '+state.dim+' / 5':'调光关闭'}`}</span></div>`;
-    names+=`<div class="eye-caption" style="left:${v.x+17}px;top:${v.cellY+42}px">${state.eye==='right'?'右眼':'左眼'} · ${state.framing==='peripheral'?'完整周边范围':'中央佩戴视角'} · ${state.eyeFilter?'人眼滤镜':'人眼滤镜关闭'}</div>`;
+    names+=`<div class="eye-caption" style="left:${v.x+17}px;top:${v.cellY+42}px">${state.eye==='right'?'右眼':'左眼'} · ${state.framing==='peripheral'?'固定注视全景':'聚焦预览'} · ${state.eyeFilter?'固定注视参考':'视野参考关闭'}</div>`;
     if(!room&&state.guides) {
       const label=(text,x,y)=>`<div class="layer-label" style="left:${Math.max(v.x+12,Math.min(x,v.x+v.w-135))}px;top:${y}px">${text}</div>`;
       labels+=`<div class="display-measure ${v.type}" data-fov-h="${p.h}" data-fov-v="${p.v}" data-display-width="${b.width}" data-display-height="${b.height}" style="left:${v.x+b.x}px;top:${v.y+b.y-24}px;width:${b.width}px">${p.h.toFixed(meta||quest?0:1)}° H${!meta&&!quest?' ≈':''}</div>`;

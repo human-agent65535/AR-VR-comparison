@@ -4,7 +4,7 @@ import * as T from 'three';
 import {comparisonLayout,COMPARISON_PAIRS} from '../src/comparison-layout.js';
 import {projection,projectedBounds,getProfile} from '../src/optics.js';
 import {createHeadsetOptics,auraTransmission} from '../src/xr-optics.js';
-import {DEVICES,deviceFov} from '../src/device-data.js';
+import {DEVICES,deviceFov,RENDER_ASSUMPTIONS} from '../src/device-data.js';
 import {wearingDistances} from '../src/wear-shapes.js';
 import {composePixel} from './helpers/perception.js';
 
@@ -19,9 +19,10 @@ test('wide layouts show all three; smaller layouts offer exactly the selected tw
 });
 test('wearing framing enlarges all devices equally without replacing anatomical human limits',()=>{
   const close=projection(620,560,'right','wearing'),full=projection(620,560,'right','peripheral');
+  assert.equal(RENDER_ASSUMPTIONS.humanField.includesEyeRotations,false);
   assert.deepEqual(close.human,full.human);assert.deepEqual(close.center,[0,0]);assert.ok(close.scale>full.scale);
   const quest=projectedBounds(getProfile('quest3'),620,560),meta=projectedBounds(getProfile('meta'),620,560);
-  assert.ok(quest.width/620>.88&&quest.height/560>.85);assert.ok(Math.abs(quest.width/meta.width-110/70)<1e-10);
+  assert.ok(quest.width/620>.88&&quest.height/560>.85);assert.ok(quest.width<=620&&quest.height<=560,'the tighter crop still contains the Quest comparison envelope');assert.ok(Math.abs(quest.width/meta.width-110/70)<1e-10);
 });
 test('every retained chart device can be drawn with disclosed estimates; R1 is absent',()=>{
   assert.equal(DEVICES.some(d=>d.id==='r1'),false);assert.equal(DEVICES.length,7);

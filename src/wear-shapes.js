@@ -7,6 +7,14 @@ export function ovalDistance(point,{center,half,power,shear=0}) {
  const x=point[0]-center[0],y=point[1]-center[1]+x*shear;
  return (Math.pow(Math.pow(Math.abs(x)/half[0],power)+Math.pow(Math.abs(y)/half[1],power),1/power)-1)*Math.min(...half);
 }
+// The outer sunglasses have a broad temporal shoulder meeting the brow.
+// Keep the nasal side and lower bowl rounded; a symmetric oval incorrectly
+// curls the upper outer edge inward. These are angular teaching estimates.
+export function auraLensDistance(point) {
+ const d=w.aura.lens,x=point[0]-d.center[0],y=point[1]-d.center[1],upperTemporal=x>0&&y>0;
+ const halfX=d.half[0]+(upperTemporal?y*d.upperTemporalLean:0),power=upperTemporal?d.upperTemporalPower:d.power;
+ return (Math.pow(Math.pow(Math.abs(x)/halfX,power)+Math.pow(Math.abs(y)/d.half[1],power),1/power)-1)*Math.min(...d.half);
+}
 export function roundedDistance(point,{center,half,radius}) {
  const q=point.map((v,i)=>Math.abs(v-center[i])-half[i]+radius);
  return Math.hypot(Math.max(q[0],0),Math.max(q[1],0))+Math.min(Math.max(...q),0)-radius;
@@ -37,7 +45,7 @@ function padLocal(p,d){
 export function wearingDistances(point,device,eye='right') {
  const p=[point[0]*(eye==='left'?-1:1),point[1]],d=w[device];
  if(device==='meta'){const shell=ovalDistance(p,d.shell),aperture=Math.max(...frontAngles(p).map((v,i)=>Math.abs(v)-d.display.half[i]));return {shell,aperture,frame:Math.min(Math.max(shell,-aperture),capsuleDistance(p,d.temple))};}
- const front=frontAngles(p),lens=ovalDistance(p,d.lens),optical=prismDistance(front,d.optical),opticalHousing=prismDistance(front,d.opticalHousing);
+ const front=frontAngles(p),lens=auraLensDistance(p),optical=prismDistance(front,d.optical),opticalHousing=prismDistance(front,d.opticalHousing);
  const pad=d.nosePad,nosePad=(Math.hypot(...padLocal(p,pad))-1)*Math.min(...pad.half);
  const noseSupport=Math.min(capsuleDistance(p,pad.arm),Math.hypot(...p.map((v,i)=>v-pad.pivot.center[i]))-pad.pivot.radius);
  const lower=Math.max(0,Math.min(1,(-p[1]-20)/30)),rimWidth=d.rimWidth+(d.lowerRimWidth-d.rimWidth)*lower*lower*(3-2*lower);
@@ -80,7 +88,14 @@ vec3 metaWear(vec2 q,vec3 reality,float light,vec3 lightColor){
  return col;
 }
 vec3 metaWear(vec2 q,vec3 reality){return metaWear(q,reality,.68,vec3(1.,.88,.74));}
-float auraLensDistance(vec2 q){return ${oval(w.aura.lens)};}
+float auraLensDistance(vec2 q){
+ vec2 p=q-${v(w.aura.lens.center)};
+ bool upperTemporal=p.x>0.&&p.y>0.;
+ float halfX=${f(w.aura.lens.half[0])}+(upperTemporal?p.y*${f(w.aura.lens.upperTemporalLean)}:0.);
+ float power=upperTemporal?${f(w.aura.lens.upperTemporalPower)}:${f(w.aura.lens.power)};
+ vec2 n=abs(p)/vec2(halfX,${f(w.aura.lens.half[1])});
+ return (pow(pow(n.x,power)+pow(n.y,power),1./power)-1.)*${f(Math.min(...w.aura.lens.half))};
+}
 vec2 auraPadPoint(vec2 q){
  vec2 p=q-${v(pad.center)};
  return vec2(${f(Math.cos(padAngle))}*p.x+${f(Math.sin(padAngle))}*p.y,-${f(Math.sin(padAngle))}*p.x+${f(Math.cos(padAngle))}*p.y)/${v(pad.half)};

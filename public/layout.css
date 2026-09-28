@@ -317,3 +317,5 @@ footer>a{font-size:11px;margin:0}
   #experience:fullscreen .control-panel .optical-lab-grid{grid-template-columns:1fr!important}
   #experience:fullscreen .earth-controls{display:none}
 }
+
+.control-panel .framing-note{margin:8px 0 12px;font-size:11px;line-height:1.65;color:var(--muted,#6e7c68)}

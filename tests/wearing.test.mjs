@@ -9,7 +9,7 @@ test('Meta has a cup around the aperture without sealing its open periphery',()=
  assert.ok(at([0,0]).aperture<0,'the central view is a display aperture');
  assert.ok(at([48,0]).frame<0,'the front housing obstructs a ray outside the display');
  for(const p of [[45,5],[0,50],[46,0],[0,-37]])assert.ok(at(p).frame<0,'cloth covers the front rather than leaving oversized openings');
- for(const p of [[54,0],[49,-25],[95,0],[0,-44],[0,-67]]){
+ for(const p of [[64,0],[56,-25],[95,0],[0,-48],[0,-67]]){
   assert.ok(humanVisibility(...p,'right')>.99,'sample lies inside the human reference');
   assert.ok(at(p).shell>0&&at(p).frame>0,'temporal and bottom rays retain an open view');
  }
@@ -17,7 +17,7 @@ test('Meta has a cup around the aperture without sealing its open periphery',()=
 
 test('AURA keeps distinct transparent lens, outer frame, brow and open peripheral regions',()=>{
  const at=p=>wearingDistances(p,'aura');
- for(const p of [[51,-7],[0,38]])assert.ok(at(p).frame<0,'rim and upper housing are visible');
+ for(const p of [[63,-9],[0,38]])assert.ok(at(p).frame<0,'rim and upper housing are visible');
  const throughLens=at([45,-5]);
  assert.ok(throughLens.lens<0&&throughLens.optical>0&&throughLens.frame>0,'outer glass extends beyond the inner optics');
  assert.ok(at([0,-33]).lens<0,'large sunglasses lens still tints the lower front');
@@ -90,7 +90,7 @@ test('AURA optical edges surround a centered display instead of shifting it towa
 
 test('both glasses keep modest outer-side openings mirrored between eyes',()=>{
  for(const device of ['meta','aura'])for(const eye of ['right','left']){
-  const temporal=device==='meta'?47:56,x=eye==='right'?temporal:-temporal,d=wearingDistances([x,-25],device,eye);
+  const temporal=device==='meta'?57:68,x=eye==='right'?temporal:-temporal,d=wearingDistances([x,-25],device,eye);
   assert.ok(d.frame>0,'outer-lower peripheral ray remains open');
   assert.ok((device==='meta'?d.shell:d.lens)>0,'side opening sees untinted room');
   const upper=wearingDistances([x,35],device,eye);
@@ -140,8 +140,8 @@ test('AURA photo arrangement joins the prism to the brow and nose while outer gl
    assert.ok(at(-42,y).frame<0,'nose-side attachment has no clear slit');
    const d=at(44,y);assert.ok(d.frame>1&&d.lens<-1&&d.optical>0,'clear outer lens extends temporal to the prism');
   }
-  for(const y of [-32,-33,-34]){const d=at(0,y);assert.ok(d.frame>1&&d.lens<-1&&d.optical>0,'a bounded transparent band remains below the optical body');}
-  for(const [x,y] of [[0,-44],[52,-34],[59,-25]]){const d=wearingDistances([x*sign,y],'aura',eye);assert.ok(d.frame>0&&d.lens>0,'lower and lower-temporal glass does not spread across the whole periphery');}
+  for(const y of [-34,-40,-44]){const d=at(0,y);assert.ok(d.frame>1&&d.lens<-1&&d.optical>0,'a bounded transparent band remains below the optical body');}
+  for(const [x,y] of [[0,-58],[62,-38],[69,-25]]){const d=wearingDistances([x*sign,y],'aura',eye);assert.ok(d.frame>0&&d.lens>0,'lower and lower-temporal glass does not spread across the whole periphery');}
  }
 });
 
@@ -168,20 +168,25 @@ test('compact AURA insert retains the approved 110 percent outline and lower pla
 });
 
 
-test('compact surrounds expose lower room rays inside a 90-degree vertical host view',()=>{
- // Regression for the former -49 / -52 degree boundaries: these could never
- // reveal their lower edge inside a host whose down angle was only 45 degrees.
- for(const device of ['meta','aura'])for(const eye of ['left','right']){
-  const key=device==='meta'?'shell':'lens',at=p=>wearingDistances(p,device,eye);
-  assert.ok(at([0,-37]).frame<0,'the lower structure is still present');
-  assert.ok(at([0,-42]).frame>.6&&at([0,-42])[key]>0,'a visible room band starts before the host lower edge');
-  assert.ok(at([0,-44]).frame>2,'the opening has useful clearance, not just one antialiased pixel');
+test('surrounds retain their estimated size even when the host cannot show their full lower edge',()=>{
+ for(const eye of ['left','right']){
+  assert.ok(wearingDistances([0,-42],'meta',eye).shell<0,'the fabric is not trimmed just to reveal a host peripheral band');
+  assert.ok(wearingDistances([0,-48],'meta',eye).frame>2,'open lower reality remains outside the fabric');
+  const lowerGlass=wearingDistances([0,-46],'aura',eye);
+  assert.ok(lowerGlass.lens<0&&lowerGlass.frame>1&&lowerGlass.optical>0,'a substantial tinted lower region remains outside the prism');
+  assert.ok(wearingDistances([0,-60],'aura',eye).frame>2,'the outer sunglasses still have an open lower periphery');
  }
- // The nasal attachment may extend farther; the centered clear prism itself
- // must stop short of +-39 degrees rather than the previous +-42.
- for(const sign of [-1,1]){
-  assert.ok(wearingDistances([sign*36,0],'aura').optical<0);
-  assert.ok(wearingDistances([sign*39,0],'aura').optical>0);
+});
+
+test('AURA outer shoulder rises into the brow without the old oval taper',()=>{
+ for(const eye of ['left','right']){
+  const sign=eye==='right'?1:-1;
+  for(const y of [-5,5,15,22]){
+   const d=wearingDistances([sign*59,y],'aura',eye);
+   assert.ok(d.lens<-1,'the outer glass continues up beside the prism instead of curling inward');
+   if(y<=5)assert.ok(d.outerFrame>1,'the expanded lower shoulder is transparent, not an opaque filled mask');
+  }
+  for(const y of [-5,5,15])assert.ok(wearingDistances([sign*67,y],'aura',eye).lens>0,'the extension remains bounded');
  }
 });
 
